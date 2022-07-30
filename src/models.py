@@ -2,14 +2,43 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+class User(db.model):
+    __tablename__ = 'user'
+    id = db.Column(Integer, primary_key=True)
+    username = db.Column(String(30), unique=True)
+    password = db.Column(String(16))
+    email = db.Column(String, unique=True)
+    firstname = db.Column(String)
+    lastname = db.Column(String)
 
-    def __repr__(self):
-        return '<User %r>' % self.username
+    def serialize():
+        return{
+            "username": self.username
+        }
+
+class Character(db.model):
+    __tablename__ = "character"
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(String)
+    haircolor = db.Column(String)
+    eyecolor = db.Column(String)
+
+class Planet(db.model):
+    __tablename__ = 'planet'
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(String)
+    climate = db.Column(String)
+    
+
+class Favorites(db.model):
+    __tablename__ = "favorite"
+    id = db.Column(Integer, primary_key=True)
+    character = relationship(Character)
+    character_id = db.Column(Integer, ForeignKey("character.id"), nullable=True)
+    planet = relationship(Planet)
+    planet_id = db.Column(Integer, ForeignKey('planet.id'), nullable=True)
+    user = relationship(User)
+    user_id = db.Column(Integer, ForeignKey("user.id"))
 
     def serialize(self):
         return {

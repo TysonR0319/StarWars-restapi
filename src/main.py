@@ -30,12 +30,49 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+#Get requests
+@app.route('/people', methods=['GET'])
+def handle_hello():
+    return None
+
+@app.route('/people/<int:position>', methods=['GET'])
+def handle_hello():
+    return None
+
+@app.route('/planets', methods=['GET'])
+def handle_hello():
+    return None
+
+
 @app.route('/user', methods=['GET'])
 def handle_hello():
+    all_users = User.query.all()
+    #loop through list serialize each item and store in new list
+    #return jasonfi new list
+    return None
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@app.route('/user/favorite', methods=['GET'])
+def handle_hello():
+    return None
+
+#Post requests
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+def handle_hello():
+    return None
+
+@app.route('/favorite/people/<int:people_id', methods=['POST'])
+def handle_hello():
+    return None
+
+#Delete requests
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def handle_hello():
+    return None
+
+@app.route('/favorite/people/<int:people_id', methods=['DELETE'])
+def handle_hello():
+    return None
+
 
     return jsonify(response_body), 200
 
