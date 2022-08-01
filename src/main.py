@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Planet, Character, FavoriteCharacter, FavoritePlanet
 #from models import Person
 
 app = Flask(__name__)
@@ -29,52 +29,96 @@ def handle_invalid_usage(error):
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
-
-#Get requests
-@app.route('/people', methods=['GET'])
-def handle_hello():
-    return None
-
-@app.route('/people/<int:position>', methods=['GET'])
-def handle_hello():
-    return None
-
-@app.route('/planets', methods=['GET'])
-def handle_hello():
-    return None
-
+    
+#---------------------------------------------------#
+#Get All Requests
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
-    all_users = User.query.all()
-    #loop through list serialize each item and store in new list
-    #return jasonfi new list
-    return None
+def get_all_users():
+    username_query = User.query.all()
+    all_users = list(map(lambda x: x.serialize(), username_query))
+    return jsonify(all_users), 200
 
-@app.route('/user/favorite', methods=['GET'])
-def handle_hello():
-    return None
+@app.route('/planets', methods=['GET'])
+def get_all_planets():
+    planet_name_query = Planet.query.all()
+    all_planets = list(map(lambda x: x.serialize(), planet_name_query))
+    return jsonify(all_planets), 200
 
-#Post requests
-@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
-def handle_hello():
-    return None
+@app.route('/character', methods=['GET'])
+def get_all_character(): 
+    character = Character.query.all()
+    all_character = list(map(lambda x: x.serialize(), character))
+    return jsonify(all_character), 200
 
-@app.route('/favorite/people/<int:people_id', methods=['POST'])
-def handle_hello():
-    return None
+@app.route('/user/favorites', methods=['GET'])
+def get_user_favorites():
+    favoriteplanet = FavoritePlanet.query.all()
+    favoritecharacter = FavoriteCharacter.query.all()
+    all_favorite_planet = list(map(lambda x: x.serialize(), favoriteplanet))
+    all_favorite_character = list(map(lambda x: x.serialize(), favoritecharacter))
+    return jsonify(all_favorite_planet+all_favorite_character), 200
 
-#Delete requests
+
+#---------------------------------------------------#
+#Get Single Requests
+@app.route('/planet/<int:planet_id>', methods=['GET'])
+def get_single_planet(planet_id):
+    planet = Planet.query.filter_by(planet_id=planet_id).first()
+    return jsonify(planet.serialize()), 200
+    
+
+@app.route('/character/<int:character_id>', methods=["GET"])
+def get_single_character(character_id):
+    character = Character.query.filter_by(character_id=character_id).first()
+    return jsonify(character.serialize()), 200
+
+
+#---------------------------------------------------#
+#Post Requests
+@app.route('/user', methods = ['POST'])
+def create_user():
+    request_body_user = request.get_json()
+    new_user = User(username=request_body_user["username"], password=request_body_user["password"])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify(request_body_user), 200
+
+@app.route('/user/favoriteplanet', methods=['POST'])
+def create_favorite_planet():
+    request_body_planet = request.get_json()
+    new_planet = FavoritePlanet(user_id=request_body_planet["user_id"], planet_id=request_body_planet["planet_id"])
+    db.session.add(new_planet)
+    db.session.commit()
+    return jsonify(request_body_planet), 200
+
+@app.route('/user/favoritecharacter', methods=['POST'])
+def create_favorite_character():
+    request_body_character = request.get_json()
+    new_character = FavoriteCharacter(user_id=request_body_character["user_id"], character_id=request_body_character["character_id"])
+    db.session.add(new_character)
+    db.session.commit()
+    return jsonify(request_body_character), 200
+
+
+#---------------------------------------------------#
+#Delete Requests
 @app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
-def handle_hello():
-    return None
+def delete_planet(id):
+    remove_planet = FavoritePlanet.query.filter_by(id=id).first()
+    print("This is the planet to delete: ", id)
+    db.session.delete(remove_planet)
+    db.session.commit()
+    return jsonify(remove_planet.serialize()), 200
 
-@app.route('/favorite/people/<int:people_id', methods=['DELETE'])
-def handle_hello():
-    return None
-
-
-    return jsonify(response_body), 200
+@app.route('/favorite/character/<int:characater_id>', methods=['DELETE'])
+def delete_character(id):
+    remove_character = FavoriteCharacter.query.filter_by(id=id).first()
+    print("This is the character to delete: ", id)
+    db.session.delete(remove_character)
+    db.session.commit()
+    return jsonify(remove_character.serialize()), 200
+    
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
