@@ -11,9 +11,9 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    username = db.Column(db.String(40), unique=True, nullable=False)
-    password = db.Column(db.String(12), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=True)
+    username = db.Column(String(40), unique=True, nullable=False)
+    password = db.Column(String(12), unique=False, nullable=False)
+    is_active = db.Column(Boolean(), unique=False, nullable=True)
     planet_favorites = relationship('FavoritePlanet', backref='User', lazy=True)
     character_favorites = relationship('FavoriteCharacter', backref='User', lazy=True)
 
